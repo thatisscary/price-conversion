@@ -14,9 +14,9 @@
 
     public class GetCurrencyDescriptionHandler : IRequestHandler<CurrencyDescriptionRequest, AvailableCurrencies>
     {
-        private readonly IForeignCurrencyService _foreignCurrencyService;
+        private readonly ForeignCurrencyService _foreignCurrencyService;
 
-        public GetCurrencyDescriptionHandler(IForeignCurrencyService foreignCurrencyService )
+        public GetCurrencyDescriptionHandler(ForeignCurrencyService foreignCurrencyService )
         {
             _foreignCurrencyService = foreignCurrencyService;
         }

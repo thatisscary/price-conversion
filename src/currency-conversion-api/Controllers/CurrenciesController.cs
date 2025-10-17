@@ -2,6 +2,7 @@
 
 namespace currency_conversion_api.Controllers
 {
+    using System.Diagnostics.CodeAnalysis;
     using System.Net.Mime;
     using currency_conversion_api.Contracts;
     using currency_conversion_api.Handlers;
@@ -33,11 +34,16 @@ namespace currency_conversion_api.Controllers
         }
 
         // GET api/<CurrenciesController>/5
-        [HttpGet("{CurrencyCodeIdentifier}")]
-        
-        public string ExchangeRate(string currencyCodeIdentifier, [FromQuery] DateTime transactionDate )
+        [HttpGet("GetExchangeRate/{currencyCodeIdentifier}/{transactionDate}")]
+        [ProducesResponseType(typeof(ExchangeRateResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status503ServiceUnavailable)]
+        [Produces(MediaTypeNames.Application.Json)]
+        public async Task<ExchangeRateResponse> GetExchangeRate([NotNull,FromRoute] string currencyCodeIdentifier, [FromRoute, NotNull] DateTime transactionDate )
         {
-            return "value";
+            GetExchangeRateRequest request = new GetExchangeRateRequest { CurrencyIdentifier = currencyCodeIdentifier, TransactionDate = transactionDate };
+            return await _mediator.Send(request);
+
+
         }
 
  

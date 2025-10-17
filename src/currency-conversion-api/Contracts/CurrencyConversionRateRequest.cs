@@ -4,6 +4,6 @@
     {
         public string CurrencyIdentifier { get; set; }
 
-        public string TransactionDate { get; set; }
+        public DateTime TransactionDate { get; set; }
     }
 }

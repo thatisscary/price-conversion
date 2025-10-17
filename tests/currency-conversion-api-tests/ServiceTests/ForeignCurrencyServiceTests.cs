@@ -4,7 +4,7 @@ namespace currency_conversion_api_tests.ServiceTests
     using System.Text;
     using System.Text.Json;
     using currency_conversion_api_tests.TestHelpers;
-
+    using NUnit;
     public class ForeignCurrencyServiceTests
 
     {
@@ -25,8 +25,9 @@ namespace currency_conversion_api_tests.ServiceTests
             var result = await sut.GetAvailableCurrencies();
 
             // Assert
-            Assert.IsNotNull(result);
-            Assert.IsNotEmpty(result.data);
+            
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.data.Length, Is.EqualTo(3));
             Assert.That(result.meta.count, Is.EqualTo(3));
         }
 
