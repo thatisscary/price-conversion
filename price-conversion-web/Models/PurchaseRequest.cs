@@ -18,7 +18,7 @@
         [Required]
         [RegularExpression(@"^[0-9]+(\.[0-9]{0,2})$", ErrorMessage = "Purchase amount must be rounded to the nearest cent.")]
         [BindProperty, DataType(DataType.Currency)]
-        public Decimal PurchaseAmount { get; set; }
+        public Decimal TotalAmount { get; set; }
 
 
     }

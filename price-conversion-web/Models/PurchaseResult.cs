@@ -6,7 +6,7 @@
         {
             Description = request.Description;
             TransactionDate = request.TransactionDate;
-            PurchaseAmount = request.PurchaseAmount;
+            TotalAmount = request.TotalAmount;
 
         }
 

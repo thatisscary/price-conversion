@@ -3,13 +3,31 @@
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using price_conversion_web.Models;
+    using price_conversion_web.Services;
 
     public class PurchaseController : Controller
     {
+        
+        public PurchaseController()
+        {
+            /*PurchaseDataService purchaseDataService, ILogger< PurchaseController > _purchaseContoller
+            _purchaseDataService = purchaseDataService;
+            this._purchaseContoller = _purchaseContoller;*/
+        }
+
         // GET: PurchaseController
         public ActionResult Index()
         {
             return View();
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> List()
+        {
+            //var result = await _purchaseDataService.GetPurchasesDataAsync();
+            PurchaseResult[] result = new PurchaseResult[] { new PurchaseResult() { Description = "Sample Purchase", TotalAmount = 100.00M, TransactionDate = DateTime.Now },
+            new PurchaseResult { Description = "Sample Purchase", TotalAmount = 100.00M, TransactionDate = DateTime.Now }};
+            return View(result);
         }
 
         // GET: PurchaseController/Details/5
