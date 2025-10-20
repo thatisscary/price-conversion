@@ -47,7 +47,7 @@
 
         public async Task<FiscalData<ExchangeRateItem>> GetConversionRate(CurrencyConversionRateRequest request)
         {
-            var exchangeRateQueryString = $"{_client.BaseAddress}?page[size]=4&sort=-effective_date&fields=effective_date,exchange_rate,country_currency_desc,record_date&filter=country_currency_desc:eq:{request.CurrencyIdentifier},effective_date:lte:{request.TransactionDate:yyyy-MM-dd}";
+            var exchangeRateQueryString = $"{_client.BaseAddress}?page[size]=1&sort=-effective_date&fields=effective_date,exchange_rate,country_currency_desc,country,record_date&filter=country_currency_desc:eq:{request.CurrencyIdentifier},effective_date:lte:{request.TransactionDate:yyyy-MM-dd}";
 
             using (var result = await _client.GetAsync(exchangeRateQueryString))
             {

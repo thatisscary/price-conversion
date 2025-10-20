@@ -1,17 +1,12 @@
 ﻿namespace price_conversion_web.Models
 {
-    public class PurchaseResult : PurchaseRequest
+    public class PurchaseResult
     {
-        public PurchaseResult( PurchaseRequest request)
-        {
-            Description = request.Description;
-            TransactionDate = request.TransactionDate;
-            TotalAmount = request.TotalAmount;
+        public Guid PurchaseId { get; set; }
+        public string Description { get; set; }
 
-        }
+        public decimal TotalAmount { get; set; }
 
-        public PurchaseResult() { }
-
-        public Guid PurchaseId  => Guid.NewGuid();
+        public DateTime TransactionDate { get; set; }
     }
 }

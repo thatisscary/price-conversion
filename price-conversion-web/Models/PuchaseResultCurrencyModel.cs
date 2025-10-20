@@ -4,7 +4,7 @@
 
     public class PuchaseResultCurrencyModel
     {
-        public AvailableCurrencies[] AvailableCurrencies { get; set; }
+        public AvailableCurrencies AvailableCurrencies { get; set; }
         public PurchaseResult[] PurchaseResults { get; set; }
     }
 

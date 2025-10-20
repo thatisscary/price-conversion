@@ -4,9 +4,9 @@
     {
         public AvailableCurrencies()
         {
-            Currencies = Enumerable.Empty<ForeignCurrency>();
+            Currencies = Array.Empty<ForeignCurrency>();
         }
 
-        public IEnumerable<ForeignCurrency> Currencies { get; set; }
+        public ForeignCurrency[] Currencies { get; set; }
     }
 }

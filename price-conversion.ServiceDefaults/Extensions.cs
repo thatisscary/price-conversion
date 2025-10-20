@@ -24,6 +24,14 @@ public static class Extensions
 
         builder.AddDefaultHealthChecks();
 
+        builder.Services.AddLogging( cfg =>
+        {
+            cfg.AddConsole();
+            cfg.AddDebug();
+            
+            // Add other logging providers as needed
+        });
+
         builder.Services.AddServiceDiscovery();
 
         builder.Services.ConfigureHttpClientDefaults(http =>

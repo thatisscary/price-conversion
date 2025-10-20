@@ -34,11 +34,11 @@ namespace currency_conversion_api.Controllers
         }
 
         // GET api/<CurrenciesController>/5
-        [HttpGet("GetExchangeRate/{currencyCodeIdentifier}/{transactionDate}")]
+        [HttpGet("ExchangeRate/{currencyCodeIdentifier}/{transactionDate}")]
         [ProducesResponseType(typeof(ExchangeRateResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status503ServiceUnavailable)]
         [Produces(MediaTypeNames.Application.Json)]
-        public async Task<ExchangeRateResponse> GetExchangeRate([NotNull,FromRoute] string currencyCodeIdentifier, [FromRoute, NotNull] DateTime transactionDate )
+        public async Task<ExchangeRateResponse> ExchangeRate([NotNull,FromRoute] string currencyCodeIdentifier, [FromRoute, NotNull] DateTime transactionDate )
         {
             GetExchangeRateRequest request = new GetExchangeRateRequest { CurrencyIdentifier = currencyCodeIdentifier, TransactionDate = transactionDate };
             return await _mediator.Send(request);

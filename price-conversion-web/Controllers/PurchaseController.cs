@@ -1,18 +1,26 @@
 ﻿namespace price_conversion_web.Controllers
 {
+    using System.Text.Json;
     using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Http.HttpResults;
     using Microsoft.AspNetCore.Mvc;
+    using price_conversion_web.Contracts;
     using price_conversion_web.Models;
     using price_conversion_web.Services;
 
+    //TODO: Implement logging and error handling.  Also move actions to MetidatR
+
     public class PurchaseController : Controller
     {
-        
-        public PurchaseController()
+        private readonly CurrencyConversionService _currencyConversionService;
+        private readonly PurchaseDataService _purchaseDataService;
+        private readonly ILogger<PurchaseController> _logger;
+
+        public PurchaseController(CurrencyConversionService currencyConversionService, PurchaseDataService purchaseDataService, ILogger<PurchaseController> _logger)
         {
-            /*PurchaseDataService purchaseDataService, ILogger< PurchaseController > _purchaseContoller
+            _currencyConversionService = currencyConversionService;
             _purchaseDataService = purchaseDataService;
-            this._purchaseContoller = _purchaseContoller;*/
+            this._logger = _logger;
         }
 
         // GET: PurchaseController
@@ -24,9 +32,15 @@
         [HttpGet]
         public async Task<ActionResult> List()
         {
-            //var result = await _purchaseDataService.GetPurchasesDataAsync();
-            PurchaseResult[] result = new PurchaseResult[] { new PurchaseResult() { Description = "Sample Purchase", TotalAmount = 100.00M, TransactionDate = DateTime.Now },
-            new PurchaseResult { Description = "Sample Purchase", TotalAmount = 100.00M, TransactionDate = DateTime.Now }};
+            var purchases = await _purchaseDataService.GetPurchasesDataAsync();
+
+            var availableCurrencies = await _currencyConversionService.GetForeignCurrencies();
+            var result = new PuchaseResultCurrencyModel()
+            {
+                AvailableCurrencies = availableCurrencies,
+                PurchaseResults = purchases
+            };
+
             return View(result);
         }
 
@@ -45,12 +59,14 @@
         // POST: PurchaseController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(PurchaseRequest collection)
+        public async Task<ActionResult> Create(PurchaseRequest purchaseRequest)
         {
             try
             {
-                PurchaseResult result = new PurchaseResult(collection);
-                return View(nameof(PurchaseResult),result);
+                var result = await _purchaseDataService.CreatePurchaseAsync(purchaseRequest);
+                var purchase = await _purchaseDataService.GetPurchaseByUrlAsync(result.itemLocation);
+
+                return View(nameof(PurchaseResult), purchase);
             }
             catch
             {
@@ -58,46 +74,22 @@
             }
         }
 
-        // GET: PurchaseController/Edit/5
-        public ActionResult Edit(int id)
+        [HttpGet]
+        public async Task<JsonResult> ConvertPurchase([FromQuery] Guid purchaseId, [FromQuery] string toCurrency)
         {
-            return View();
+            var purchase = await _purchaseDataService.GetPurchaseByIdAsync(purchaseId);
+            var conversionInfo = await _currencyConversionService.GetConversionRateAsync(toCurrency, purchase.TransactionDate);
+            if (conversionInfo != null)
+            {
+                var amount = Math.Round(purchase.TotalAmount * conversionInfo.ExchangeRate, 2);
+                var result = new { convertedamount = amount, currencysymbol = conversionInfo.CurrencySymbol };
+
+                return Json(result);
+            }
+
+            return null;
         }
 
-        // POST: PurchaseController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: PurchaseController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: PurchaseController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
+        //return JsonResult();
     }
 }

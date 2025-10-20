@@ -2,6 +2,8 @@
 
 @{
     var purchaseResults = Model.PurchaseResults;
+    var currencyIdentifiers = Model.AvailableCurrencies?.Currencies?.Select(f => f.CurrencyIdentifier).ToArray() ?? Array.Empty<string>();
+    var currencyIdentifiersJson = System.Text.Json.JsonSerializer.Serialize(currencyIdentifiers);
     ViewData["Title"] = "Purchases";
 }
 
@@ -10,54 +12,148 @@
 <div>
     <h4>PurchaseResult</h4>
     <hr />
-    
+
     <div class="container" id="purchases">
-    
+
         <div class="row">
 
             <div class="col bg-primary text-white">Description</div>
             <div class="col bg-primary text-white">Transaction Date</div>
             <div class="col bg-primary text-white">Transaction Amount</div>
-          </div>  
-    
+            <div class="col bg-primary text-white">Converted Amount</div>
+            <div class="col bg-primary text-white">Convert To</div>
+        </div>
+
         @{
-            for( int i = 0; i<purchaseResults.Length; ++i)
+
+            for (int i = 0; i < purchaseResults.Length; ++i)
             {
                 var item = purchaseResults[i];
                 <div class="row">
-                
-                @if( i % 2 == 0)
-                {
+
+                    @if (i % 2 == 0)
+                    {
 
                         <div class="col bg-secondary bg-opacity-10">@item.Description</div>
                         <div class="col bg-secondary bg-opacity-10">
-                        @item.TransactionDate.ToString("yyyy-MM-dd")
-                    </div>
+                            @item.TransactionDate.ToString("yyyy-MM-dd")
+                        </div>
                         <div class="col bg-secondary bg-opacity-10">
-                        @item.TotalAmount.ToString("C")
-                    </div>
-                }
-                else
+                            @item.TotalAmount.ToString("C")
+                        </div>
 
-                {
-                    <div class="col bg-primary bg-opacity-10">@item.Description</div>
-                        <div class="col bg-primary bg-opacity-10">
-                        @item.TransactionDate.ToString("yyyy-MM-dd")
-                    </div>
-                        <div class="col bg-primary bg-opacity-10">
-                        @item.TotalAmount.ToString("C")
-                    </div>
+                        <div class="col bg-secondary bg-opacity-10 converted-amount" id="converted_@i">-</div>
 
-                }
-                
-           </div>
+                        <div class="col bg-secondary bg-opacity-10">
+                            <select id="convertTo_@i" name="ConvertTo[@i]" class="form-select convert-to-select"
+                                    data-index="@i" data-purchase-id="@item.PurchaseId">
+                                <option value="">Select currency</option>
+                            </select>
+                        </div>
+                    }
+                    else
+
+                    {
+                        <div class="col bg-primary bg-opacity-10">@item.Description</div>
+                        <div class="col bg-primary bg-opacity-10">
+                            @item.TransactionDate.ToString("yyyy-MM-dd")
+                        </div>
+                        <div class="col bg-primary bg-opacity-10">
+                            @item.TotalAmount.ToString("C")
+                        </div>
+
+                        <div class="col bg-primary bg-opacity-10 converted-amount" id="converted_@i">-</div>
+
+                        <div class="col bg-primary bg-opacity-10">
+                            <select id="convertTo_@i" name="ConvertTo[@i]" class="form-select convert-to-select"
+                                    data-index="@i" data-purchase-id="@item.PurchaseId">
+                                <option value="">Select currency</option>
+                            </select>
+                        </div>
+
+                    }
+
+                </div>
+            }
         }
-    }
 
-    </div>    
+    </div>
 
-        
-<div>
-    @Html.ActionLink("Edit", "Edit", new { /* id = Model.PrimaryKey */ }) |
-    <a asp-action="Index">Back to List</a>
-</div>
+
+    <div>
+        @Html.ActionLink("Edit", "Edit", new { /* id = Model.PrimaryKey */ }) |
+        <a asp-action="Index">Back to List</a>
+    </div>
+
+@section Scripts {
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+        <script>
+            // single instance of currency identifiers created from the model
+            var currencyIds = @Html.Raw(currencyIdentifiersJson);
+
+            // endpoint for convert purchase - will include purchaseId in query string
+            var convertUrl = '@Url.Action("ConvertPurchase", "Purchase")';
+
+            $(document).ready(function () {
+                // populate each select with the same set of options (keep the placeholder option already present)
+                $('.convert-to-select').each(function () {
+                    var $sel = $(this);
+                    // avoid duplicating options if already populated
+                    if ($sel.find('option').length <= 1) {
+                        currencyIds.forEach(function (c) {
+                            $sel.append(new Option(c, c));
+                        });
+                    }
+                });
+
+                // initialize Select2 on all selects
+                $('.convert-to-select').select2({
+                    placeholder: 'Select currency',
+                    width: '100%'
+                });
+
+                // handle selection - call convert endpoint and include purchase identifier in query string
+                $('.convert-to-select').on('change', function (e) {
+                    var $sel = $(this);
+                    var selectedCurrency = $sel.val();
+                    var purchaseId = $sel.data('purchase-id');
+                    var index = $sel.data('index');
+
+                    if (!selectedCurrency || !purchaseId) return;
+
+                    var $convertedCell = $('#converted_' + index);
+                    $sel.prop('disabled', true);
+                    $convertedCell.text('Converting...');
+
+                    var url = convertUrl + '?purchaseId=' + encodeURIComponent(purchaseId) + '&toCurrency=' + encodeURIComponent(selectedCurrency);
+
+                    fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(function (resp) {
+                        if (!resp.ok) throw new Error('Network response was not ok');
+                        return resp.json();
+                    })
+                    .then(function (data) {
+                        // expect the endpoint to return a JSON payload with converted amount property
+                        
+                        
+                        $convertedCell.text(data.currencysymbol + data.convertedamount);
+                    })
+                    .catch(function (err) {
+                        console.error(err);
+                        $convertedCell.text('Error');
+                    })
+                    .finally(function () {
+                        $sel.prop('disabled', false);
+                    });
+                });
+            });
+        </script>
+}

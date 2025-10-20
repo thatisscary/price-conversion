@@ -42,37 +42,6 @@ namespace price_conversion_data_api.Controllers
             return purchase;
         }
 
-        // PUT: api/Purchases/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutPurchase(Guid id, Purchase purchase)
-        {
-            if (id != purchase.PurchaseId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(purchase).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!PurchaseExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
         // POST: api/Purchases
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
@@ -82,22 +51,6 @@ namespace price_conversion_data_api.Controllers
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetPurchase", new { id = purchase.PurchaseId }, purchase);
-        }
-
-        // DELETE: api/Purchases/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeletePurchase(Guid id)
-        {
-            var purchase = await _context.Purchases.FindAsync(id);
-            if (purchase == null)
-            {
-                return NotFound();
-            }
-
-            _context.Purchases.Remove(purchase);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
         }
 
         private bool PurchaseExists(Guid id)
