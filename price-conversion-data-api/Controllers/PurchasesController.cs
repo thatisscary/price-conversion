@@ -1,0 +1,61 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using price_conversion_purchasedb;
+using price_conversion_purchasedb.Entities;
+
+namespace price_conversion_data_api.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class PurchasesController : ControllerBase
+    {
+        private readonly PurchaseDbContext _context;
+
+        public PurchasesController(PurchaseDbContext context)
+        {
+            _context = context;
+        }
+
+        // GET: api/Purchases
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Purchase>>> GetPurchases()
+        {
+            return await _context.Purchases.ToListAsync();
+        }
+
+        // GET: api/Purchases/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Purchase>> GetPurchase(Guid id)
+        {
+            var purchase = await _context.Purchases.FindAsync(id);
+
+            if (purchase == null)
+            {
+                return NotFound();
+            }
+
+            return purchase;
+        }
+
+        // POST: api/Purchases
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost]
+        public async Task<ActionResult<Purchase>> PostPurchase(Purchase purchase)
+        {
+            _context.Purchases.Add(purchase);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetPurchase", new { id = purchase.PurchaseId }, purchase);
+        }
+
+        private bool PurchaseExists(Guid id)
+        {
+            return _context.Purchases.Any(e => e.PurchaseId == id);
+        }
+    }
+}
