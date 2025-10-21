@@ -2,7 +2,7 @@ using Aspire.Hosting;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-var cache = builder.AddRedis("cache");
+
 
 var azureSql = builder.AddAzureSqlServer("sqldb").RunAsContainer();
 
