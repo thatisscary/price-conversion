@@ -1,5 +1,7 @@
 using currency_conversion_api.Services;
-using MediatR;
+using LiteBus.Commands.Extensions.MicrosoftDependencyInjection;
+using LiteBus.Messaging.Extensions.MicrosoftDependencyInjection;
+using LiteBus.Queries.Extensions.MicrosoftDependencyInjection;
 using Serilog;
 
 
@@ -25,12 +27,17 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddProblemDetails();
 
-builder.Services.AddMediatR(cfg =>
+builder.Services.AddLiteBus(liteBus =>
 {
-    cfg.LicenseKey = "eyJhbGciOiJSUzI1NiIsImtpZCI6Ikx1Y2t5UGVubnlTb2Z0d2FyZUxpY2Vuc2VLZXkvYmJiMTNhY2I1OTkwNGQ4OWI0Y2IxYzg1ZjA4OGNjZjkiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2x1Y2t5cGVubnlzb2Z0d2FyZS5jb20iLCJhdWQiOiJMdWNreVBlbm55U29mdHdhcmUiLCJleHAiOiIxNzkyMTA4ODAwIiwiaWF0IjoiMTc2MDY0OTgxNSIsImFjY291bnRfaWQiOiIwMTk5ZWVlNzQzZDA3NGU0YTJmNGJlMTFiMzk5NzNlOSIsImN1c3RvbWVyX2lkIjoiY3RtXzAxazdxZWc5d3M1dzBybXoyZGVqcm02ZnZiIiwic3ViX2lkIjoiLSIsImVkaXRpb24iOiIwIiwidHlwZSI6IjIifQ.Kn7xE7W8cn4eKkttTVfgcOas9gRCZ3JFq7RgwlZsUIebfr6tTad55xpZpEj2p1cmlSl3Qb05srfJ0d8SysgqxbKXIqbJkWSHcqUKhyxAfUX-tTnan3gUeL6FMPh8eYEbg4zVZnDbHy-u0RRlYr9jscakumOxBS2UQ_uixT9DAmgJhHuslQofRV2DQGgedrvLPY_YB5QffquYQaq7UtaHnhmHFUZb28nDvBNFx3aKvT8eKIiIch4vBBFwe0hXD0TzRWSRUUzy1bB8h_JVRoANELVjCBCKm2Yiass7y6lXkVtveXPVLhVECE4sLhiDDXhEorKjeKXlDWxgZjjD8mPXfg";
-    cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
+    liteBus.AddCommandModule(module =>
+    {
+        module.RegisterFromAssembly(typeof(Program).Assembly);
+    });
+    liteBus.AddQueryModule(module =>
+    {
+        module.RegisterFromAssembly(typeof(Program).Assembly);
+    });
 });
-
 
 
 builder.Services.AddHttpClient<ForeignCurrencyService>(client =>

@@ -2,33 +2,31 @@
 {
     using System.Threading;
     using System.Threading.Tasks;
-    using currency_conversion_api.Services;
-    using MediatR;
-    using System.Linq;
-    using currency_conversion_api.Contracts.External;
     using currency_conversion_api.Contracts;
+    using currency_conversion_api.Contracts.External;
+    using currency_conversion_api.Services;
+    using LiteBus.Queries.Abstractions;
 
-    public class CurrencyDescriptionRequest : IRequest<AvailableCurrencies>
+    public class CurrencyDescriptionRequest : IQuery<OneOf<AvailableCurrencies, InternalErrorResult>>
     { }
 
-
-    public class GetCurrencyDescriptionHandler : IRequestHandler<CurrencyDescriptionRequest, AvailableCurrencies>
+    public class GetCurrencyDescriptionHandler : IQueryHandler<CurrencyDescriptionRequest, OneOf<AvailableCurrencies, InternalErrorResult>>
     {
         private readonly ForeignCurrencyService _foreignCurrencyService;
 
-        public GetCurrencyDescriptionHandler(ForeignCurrencyService foreignCurrencyService )
+        public GetCurrencyDescriptionHandler(ForeignCurrencyService foreignCurrencyService)
         {
             _foreignCurrencyService = foreignCurrencyService;
         }
 
-        public async Task<AvailableCurrencies> Handle(CurrencyDescriptionRequest request, CancellationToken cancellationToken)
+        public async Task<OneOf<AvailableCurrencies, InternalErrorResult>> HandleAsync(CurrencyDescriptionRequest request, CancellationToken cancellationToken)
         {
-            FiscalData<ForeignCurrencyDescription> data= await _foreignCurrencyService.GetAvailableCurrencies();
+            OneOf<FiscalData<ForeignCurrencyDescription>, InternalErrorResult> data = await _foreignCurrencyService.GetAvailableCurrencies();
 
-            AvailableCurrencies response = new AvailableCurrencies(data);
-
-            return response;
-
+            return data.Match<OneOf<AvailableCurrencies, InternalErrorResult>>(
+                fiscalData => { return new AvailableCurrencies(fiscalData); },
+                internalErrorResult => { return internalErrorResult; }
+            );
         }
     }
 }
