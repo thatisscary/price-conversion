@@ -48,16 +48,6 @@ builder.Services.AddHttpClient<ForeignCurrencyService>(client =>
 });
 
 
-// Register custom pipeline behaviors
-//builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidatorPipelineBehavior<,>));
-
-
-
-// Register all Fluent Validators
-
-//builder.Services.AddValidatorsFromAssemblyContaining(typeof(Program));
-
-
 
 var app = builder.Build();
 

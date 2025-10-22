@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "purchasedb-databasedeploy",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "price-conversion-data-api", "price-conversion-data-api\price-conversion-data-api.csproj", "{95C6962B-7927-C101-BE06-09A7B9E314E5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "price-conversion-data-api-tests", "price-conversion-data-api-tests\price-conversion-data-api-tests.csproj", "{B1F0A85E-FE24-4BB0-9293-5AC136AE8D57}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -62,6 +64,10 @@ Global
 		{95C6962B-7927-C101-BE06-09A7B9E314E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{95C6962B-7927-C101-BE06-09A7B9E314E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{95C6962B-7927-C101-BE06-09A7B9E314E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1F0A85E-FE24-4BB0-9293-5AC136AE8D57}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1F0A85E-FE24-4BB0-9293-5AC136AE8D57}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1F0A85E-FE24-4BB0-9293-5AC136AE8D57}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1F0A85E-FE24-4BB0-9293-5AC136AE8D57}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
