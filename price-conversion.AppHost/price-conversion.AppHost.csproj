@@ -14,8 +14,6 @@
     <ProjectReference Include="..\currency-conversion-api\currency-conversion-api.csproj" />
     <ProjectReference Include="..\price-conversion-data-api\price-conversion-data-api.csproj" />
     <ProjectReference Include="..\price-conversion-web\price-conversion-web.csproj" />
-    <ProjectReference Include="..\price-conversion.ApiService\price-conversion.ApiService.csproj" />
-    <ProjectReference Include="..\purchase-api\purchase-api.csproj" />
     <ProjectReference Include="..\purchasedb-databasedeploy\purchasedb-databasedeploy.csproj" />
   </ItemGroup>
 

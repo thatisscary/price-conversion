@@ -12,9 +12,6 @@ var dbDeploy = builder.AddProject<Projects.purchasedb_databasedeploy>("db-deploy
     .WithReference(purchasedb)
     .WaitFor(purchasedb);
 
-var apiService = builder.AddProject<Projects.price_conversion_ApiService>("apiservice")
-    .WithHttpHealthCheck("/health");
-
 var priceConversionDataApi = builder.AddProject<Projects.price_conversion_data_api>("price-conversion-data-api")
     .WaitFor(purchasedb)
     .WaitFor(dbDeploy)

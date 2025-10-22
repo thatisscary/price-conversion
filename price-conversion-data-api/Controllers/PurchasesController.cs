@@ -99,13 +99,13 @@ namespace price_conversion_data_api.Controllers
 
                 _logger.LogInformation("Creating a new purchase with description: {Description}", purchase.description);
                 var result = await _commandMediator.SendAsync(command);
-                var url = $"{Request.Scheme}//{Request.Host}{Request.Path}{result}";
+                var url = $"{Request.Scheme}://{Request.Host}{Request.Path}/{result}";
                 return Created(url,result);
                 
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating purchase", command);
+                _logger.LogError(ex, "Error creating purchase {command}", command);
                 return StatusCode(StatusCodes.Status503ServiceUnavailable, new ProblemDetails
                 {
                     Status = StatusCodes.Status503ServiceUnavailable,
