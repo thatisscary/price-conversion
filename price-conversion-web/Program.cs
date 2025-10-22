@@ -44,7 +44,7 @@ builder.Services.AddHttpClient<CurrencyConversionService>(
 builder.Services.AddHttpClient<PurchaseDataService>(
     httpsClient =>
     {
-        httpsClient.BaseAddress = new Uri("https://price-conversion-api"); // Replace with your actual base URL
+        httpsClient.BaseAddress = new Uri("https://price-conversion-data-api"); // Replace with your actual base URL
         httpsClient.DefaultRequestHeaders.Add("Accept", "application/json");
         // Add any other configurations, like timeouts or headers
     });

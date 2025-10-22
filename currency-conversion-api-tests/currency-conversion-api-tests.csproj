@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\currency-conversion-api\currency-conversion-api.csproj" />
     <ProjectReference Include="..\price-conversion.AppHost\price-conversion.AppHost.csproj" />
   </ItemGroup>
 
