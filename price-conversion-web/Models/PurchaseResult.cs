@@ -3,7 +3,7 @@
     public class PurchaseResult
     {
         public Guid PurchaseId { get; set; }
-        public string Description { get; set; }
+        public string Description { get; set; }= string.Empty;
 
         public decimal TotalAmount { get; set; }
 

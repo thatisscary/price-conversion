@@ -4,8 +4,10 @@
 
     public class PuchaseResultCurrencyModel
     {
-        public AvailableCurrencies AvailableCurrencies { get; set; }
-        public PurchaseResult[] PurchaseResults { get; set; }
+        
+
+        public AvailableCurrencies AvailableCurrencies { get; set; } = new AvailableCurrencies();
+        public PurchaseResult[] PurchaseResults { get; set; } = Array.Empty<PurchaseResult>();
     }
 
     

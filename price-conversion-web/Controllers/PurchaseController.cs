@@ -35,6 +35,17 @@
             var purchases = await _purchaseDataService.GetPurchasesDataAsync();
 
             var availableCurrencies = await _currencyConversionService.GetForeignCurrencies();
+            if (availableCurrencies == null)
+            {
+                _logger.LogWarning("No available currencies retrieved from Currency Conversion Service.");
+                availableCurrencies = new AvailableCurrencies { Currencies = new ForeignCurrency[] { new ForeignCurrency { CurrencyIdentifier = "Currency Service Unavailable" } } };
+                return View(new PuchaseResultCurrencyModel
+                {
+                    AvailableCurrencies = availableCurrencies,
+                    PurchaseResults = purchases
+                });
+            }
+
             var result = new PuchaseResultCurrencyModel()
             {
                 AvailableCurrencies = availableCurrencies,
@@ -79,6 +90,12 @@
         {
             var purchase = await _purchaseDataService.GetPurchaseByIdAsync(purchaseId);
 
+            if (purchase == null)
+            {
+                var notFoundResult = new { message = $"Purchase with id {purchaseId} not found." };
+                return Json(notFoundResult);
+            }
+
             var conversionInfo = await _currencyConversionService.GetConversionRateAsync(toCurrency, purchase.TransactionDate);
 
             if (conversionInfo != null && !conversionInfo.ConversionFound)
@@ -90,7 +107,6 @@
             {
                 var amount = Math.Round(purchase.TotalAmount * conversionInfo.ExchangeRate, 2);
                 var result = new { message = $"{conversionInfo.CurrencySymbol} {amount}" };
-
 
                 return Json(result);
             }
