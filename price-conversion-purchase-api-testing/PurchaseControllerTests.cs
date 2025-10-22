@@ -137,6 +137,7 @@ namespace price_conversion_testing
             Assert.Equals(HttpStatusCode.OK, getResponse.StatusCode);
             Assert.Equals("application/json; charset=utf-8", getResponse.Content.Headers.ContentType?.ToString());
             await Assert.That(purcahseList).IsNotNull();
+            await Assert.That(purcahseList).IsNotEmpty();
             await Assert.That(purcahseList?.Count ?? 0).IsGreaterThanOrEqualTo(2);
             await Assert.That(purcahseList).Contains( p => p.Description == purchaseRequest1.description);
             await Assert.That(purcahseList).Contains(p => p.Description == purchaseRequest2.description);
