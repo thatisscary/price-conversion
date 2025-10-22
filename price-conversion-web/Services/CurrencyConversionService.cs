@@ -32,8 +32,9 @@
 
                 if( response.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
-                    return new CurrencyExchange { ConversionFound = false , ErrorMessage = $"No conversion found for {currencyCode} for transaction date {transactionDate:yyyy-MM-dd}" };
                     _logger.LogWarning("Failed to get conversion rate. Status Code: {StatusCode}", response.StatusCode);
+                    return new CurrencyExchange { ConversionFound = false , ErrorMessage = $"No conversion found for {currencyCode} for transaction date {transactionDate:yyyy-MM-dd}" };
+                    
                 }
             }
             catch (Exception ex)
@@ -44,7 +45,7 @@
             return new CurrencyExchange { ConversionFound = false }; 
         }
 
-        public async Task<AvailableCurrencies> GetForeignCurrencies()
+        public async Task<AvailableCurrencies?> GetForeignCurrencies()
         {
             try
             {
