@@ -78,16 +78,25 @@
         public async Task<JsonResult> ConvertPurchase([FromQuery] Guid purchaseId, [FromQuery] string toCurrency)
         {
             var purchase = await _purchaseDataService.GetPurchaseByIdAsync(purchaseId);
+
             var conversionInfo = await _currencyConversionService.GetConversionRateAsync(toCurrency, purchase.TransactionDate);
-            if (conversionInfo != null)
+
+            if (conversionInfo != null && !conversionInfo.ConversionFound)
+            {
+                var failureResult = new { message = conversionInfo.ErrorMessage };
+                return Json(failureResult);
+            }
+            if (conversionInfo != null && conversionInfo.ConversionFound)
             {
                 var amount = Math.Round(purchase.TotalAmount * conversionInfo.ExchangeRate, 2);
-                var result = new { convertedamount = amount, currencysymbol = conversionInfo.CurrencySymbol };
+                var result = new { message = $"{conversionInfo.CurrencySymbol} {amount}" };
+
 
                 return Json(result);
             }
 
-            return null;
+            var noResult = new { message = $"Error converting {toCurrency}" };
+            return Json(noResult);
         }
 
         //return JsonResult();

@@ -1,5 +1,8 @@
 using Serilog;
-
+using LiteBus.Messaging.Extensions.MicrosoftDependencyInjection;
+using LiteBus.Queries.Extensions.MicrosoftDependencyInjection;
+using LiteBus.Commands.Extensions.MicrosoftDependencyInjection;
+using price_conversion_data_api.Repositories;
 var builder = WebApplication.CreateBuilder(args);
 
 Log.Logger = new LoggerConfiguration()
@@ -11,9 +14,28 @@ Log.Information("Starting up Price Conversion Data API");
 
 builder.AddServiceDefaults();
 
+builder.Services.AddProblemDetails();
+
 builder.Services.AddSerilog();
 
 builder.AddSqlServerDbContext<price_conversion_purchasedb.PurchaseDbContext>("purchasedb");
+
+builder.Services.AddTransient<IPurchaseRepository, PurchaseRepository>();
+
+builder.Services.AddLiteBus(liteBus =>
+{
+    liteBus.AddQueryModule(module =>
+    {
+        module.RegisterFromAssembly(typeof(Program).Assembly);
+    });
+
+    liteBus.AddCommandModule(module =>
+    {
+        module.RegisterFromAssembly(typeof(Program).Assembly);
+    });
+});
+
+
 
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 

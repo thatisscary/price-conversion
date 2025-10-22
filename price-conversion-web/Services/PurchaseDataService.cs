@@ -20,7 +20,7 @@
         {
             try
             {
-                using (var result = await _purchaseApiClient.GetAsync(new Uri(_purchaseApiClient.BaseAddress, PurchaseApiEndpoint)))
+                using (var result = await _purchaseApiClient.GetAsync(PurchaseApiEndpoint))
                 {
                     if (result.IsSuccessStatusCode)
                     {
@@ -31,7 +31,7 @@
                             {
                                 if (sr != null)
                                 {
-                                    PurchaseResult[] purchases = await JsonSerializer.DeserializeAsync<PurchaseResult[]>(sr, jsonOptions);
+                                    PurchaseResult[]? purchases = await JsonSerializer.DeserializeAsync<PurchaseResult[]>(sr, jsonOptions);
 
                                     return purchases ?? Array.Empty<PurchaseResult>();
                                 }
@@ -51,8 +51,8 @@
 
         public async Task<PurchaseResult?> GetPurchaseByIdAsync(Guid id)
         {
-            var getByIdEndpoint = new Uri(_purchaseApiClient.BaseAddress, PurchaseApiEndpoint);
-            return await GetPurchaseByUrlAsync($"{getByIdEndpoint}/{id}");
+            
+            return await GetPurchaseByUrlAsync($"{PurchaseApiEndpoint}/{id}");
         }
 
         public async Task<PurchaseResult?> GetPurchaseByUrlAsync(string purchaseUri)
@@ -86,12 +86,12 @@
             }
         }
 
-        public async Task<(bool success, string itemLocation, PurchaseResult purchase)> CreatePurchaseAsync(PurchaseRequest purchase)
+        public async Task<(bool success, string itemLocation)> CreatePurchaseAsync(PurchaseRequest purchase)
         {
             try
             {
-                var purchaseJson = new StringContent(JsonSerializer.Serialize(purchase),System.Text.Encoding.UTF8,"application/json");
-                using (var result = await _purchaseApiClient.PostAsync(new Uri(_purchaseApiClient.BaseAddress, PurchaseApiEndpoint), purchaseJson))
+                var purchaseJson = new StringContent(JsonSerializer.Serialize(purchase), System.Text.Encoding.UTF8, "application/json");
+                using (var result = await _purchaseApiClient.PostAsync(PurchaseApiEndpoint, purchaseJson))
                 {
                     if (result.IsSuccessStatusCode)
                     {
@@ -102,20 +102,20 @@
                             {
                                 if (sr != null)
                                 {
-                                    PurchaseResult? purchaseResult = await JsonSerializer.DeserializeAsync<PurchaseResult>(sr, jsonOptions);
+                                    
 
-                                    return (true, result.Headers?.Location?.ToString() ?? string.Empty, purchaseResult);
+                                    return (true, result.Headers?.Location?.ToString() ?? string.Empty);
                                 }
                             }
                         }
                     }
-                    return (false, string.Empty, null);
+                    return (false, string.Empty);
                 }
             }
             catch (HttpRequestException e)
             {
                 _logger.LogError($"Request error: {e.Message}");
-                return (false, string.Empty, null);
+                return (false,string.Empty);
             }
         }
     }

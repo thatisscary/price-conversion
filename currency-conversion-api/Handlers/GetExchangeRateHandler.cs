@@ -5,15 +5,21 @@
     using System.Threading.Tasks;
     using currency_conversion_api.Contracts;
     using currency_conversion_api.Services;
-    using MediatR;
+    using LiteBus.Queries.Abstractions;
 
-    public class GetExchangeRateRequest : IRequest<ExchangeRateResponse>
+    public class GetExchangeRateRequest : IQuery<OneOf<ExchangeRateResponse, InternalErrorResult>>
     {
+        public GetExchangeRateRequest(string currencyIdentifier, DateTime transactionDate)
+        {
+            CurrencyIdentifier = currencyIdentifier;
+            TransactionDate = transactionDate;
+        }
+
         public string CurrencyIdentifier { get; set; }
         public DateTime TransactionDate { get; set; }
     }
 
-    public class GetExchangeRateHandler : IRequestHandler<GetExchangeRateRequest, ExchangeRateResponse>
+    public class GetExchangeRateHandler : IQueryHandler<GetExchangeRateRequest, OneOf<ExchangeRateResponse, InternalErrorResult>>
 
     {
         private readonly ForeignCurrencyService _foreignCurrencyService;
@@ -23,22 +29,27 @@
             _foreignCurrencyService = foreignCurrencyService;
         }
 
-        public async Task<ExchangeRateResponse> Handle(GetExchangeRateRequest request, CancellationToken cancellationToken)
+        public async Task<OneOf<ExchangeRateResponse, InternalErrorResult>> HandleAsync(GetExchangeRateRequest request, CancellationToken cancellationToken)
         {
-            CurrencyConversionRateRequest rateRequest = new CurrencyConversionRateRequest { CurrencyIdentifier = request.CurrencyIdentifier, TransactionDate = request.TransactionDate };
+            CurrencyConversionRateRequest rateRequest = new CurrencyConversionRateRequest ( request.CurrencyIdentifier, request.TransactionDate );
 
-            var response = await _foreignCurrencyService.GetConversionRate(rateRequest);
+            OneOf<Contracts.External.FiscalData<ExchangeRateItem>, InternalErrorResult> response = await _foreignCurrencyService.GetConversionRate(rateRequest);
 
-            if (response is not null && response.data.Length > 0)
-            {
-                return new ExchangeRateResponse(response?.data[0], GetExchangeSymbol(response?.data[0].country));
-            }
-
-            return new ExchangeRateResponse();
+            return response.Match<OneOf<ExchangeRateResponse, InternalErrorResult>>(
+                fiscalData =>
+                {
+                    return new ExchangeRateResponse(fiscalData.data[0], GetExchangeSymbol(fiscalData?.data[0]?.country));
+                },
+                internalErrorResult => { return internalErrorResult; }
+            );
         }
 
-        private static string GetExchangeSymbol(string countryName)
+        private static string GetExchangeSymbol(string? countryName)
         {
+            if (string.IsNullOrEmpty(countryName))
+            {
+                return string.Empty;
+            }
             var cultures = CultureInfo.GetCultures(CultureTypes.SpecificCultures);
             // Find matching cultures where the region's EnglishName matches the country name (case-insensitive)
             var matchingRegions = cultures
@@ -54,7 +65,7 @@
                     }
                 })
                 .Where(region => region != null && region.EnglishName.Equals(countryName, StringComparison.OrdinalIgnoreCase))
-                .DistinctBy(region => region.ISOCurrencySymbol) // Distinct by currency code in case of multiples
+                .DistinctBy(region => region?.ISOCurrencySymbol) // Distinct by currency code in case of multiples
                 .ToList();
 
             return matchingRegions.FirstOrDefault()?.CurrencySymbol ?? string.Empty;

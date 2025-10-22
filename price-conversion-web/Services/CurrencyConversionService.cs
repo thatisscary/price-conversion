@@ -26,19 +26,22 @@
                     using var sr = await response.Content.ReadAsStreamAsync();
                     JsonSerializerOptions options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
                     var exchangeRate = await JsonSerializer.DeserializeAsync<CurrencyExchange>(sr, options);
-
+                    exchangeRate!.ConversionFound = true;
                     return exchangeRate;
                 }
-                else
+
+                if( response.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
+                    return new CurrencyExchange { ConversionFound = false , ErrorMessage = $"No conversion found for {currencyCode} for transaction date {transactionDate:yyyy-MM-dd}" };
                     _logger.LogWarning("Failed to get conversion rate. Status Code: {StatusCode}", response.StatusCode);
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Exception occurred while fetching conversion rate for {Currency} on {Date}", currencyCode, transactionDate);
+                return new CurrencyExchange { ConversionFound = false, ErrorMessage = $"Error Retrieving Conversion Rate found for {currencyCode} for transaction date {transactionDate:yyyy-MM-dd}" };
             }
-            return null;
+            return new CurrencyExchange { ConversionFound = false }; 
         }
 
         public async Task<AvailableCurrencies> GetForeignCurrencies()
